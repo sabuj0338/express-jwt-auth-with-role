@@ -6,9 +6,9 @@ const createError = require("http-errors");
 const User = require("../model/userModel");
 
 // get login page
-function getLogin(req, res, next) {
-    res.render("index");
-}
+// function getLogin(req, res, next) {
+//     res.render("index");
+// }
 
 function me(req, res, next) {
     res.status(200).json({
@@ -173,6 +173,22 @@ async function register(req, res, next) {
     // }
 }
 
+// send verfication code to user email
+async function sendCode(req, res, next) {
+    console.log("pin code sent");
+    res.status(200).json({
+        message: "Verification code sent to your email!",
+    });
+}
+
+// verification of user
+async function verify(req, res, next) {
+    console.log("pin code verified");
+    res.status(200).json({
+        message: "Verification completed!",
+    });
+}
+
 // do logout
 function logout(req, res) {
     res.clearCookie(process.env.COOKIE_NAME);
@@ -180,9 +196,10 @@ function logout(req, res) {
 }
 
 module.exports = {
-    getLogin,
     login,
     register,
     logout,
-    me
+    me,
+    sendCode,
+    verify
 };
