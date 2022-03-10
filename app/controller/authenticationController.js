@@ -4,6 +4,7 @@ const createError = require("http-errors");
 
 // internal imports
 const User = require("../model/userModel");
+const sendMail = require("../../mailer/email");
 
 // get login page
 // function getLogin(req, res, next) {
@@ -192,6 +193,11 @@ async function verify(req, res, next) {
 // send verfication code to user email
 async function forgotPassword(req, res, next) {
     console.log("pin code sent");
+    await sendMail({
+        to: "sabujullapara@gmail.com",
+        subject: "Testing node mail",
+        text: "<h1>Hi there, i am from node js.</h1>"
+    });
     res.status(200).json({
         message: "Verification code sent to your email!",
     });
@@ -199,7 +205,7 @@ async function forgotPassword(req, res, next) {
 
 // verification of user
 async function updatePassword(req, res, next) {
-    console.log("pin code verified");
+    console.log("password reset completed");
     res.status(200).json({
         message: "Verification completed!",
     });

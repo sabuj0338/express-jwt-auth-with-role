@@ -90,8 +90,8 @@ const emailValidation = [
     .custom(async (value) => {
         try {
             const user = await User.findOne({ email: value });
-            if (user) {
-                throw createError("Invalid Email!");
+            if (!user) {
+                throw createError("Invalid Email==!");
             }
         } catch (err) {
             throw createError(err.message);

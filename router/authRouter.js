@@ -27,7 +27,7 @@ router.post("/verify", verifyAuthMiddleware(Role.all, false), verify);
 // router.post("/profile-update", verifyAuthMiddleware(Role.all, false), verify);
 
 router.post("/forgot-password", emailValidation, emailValidationHandler, forgotPassword);
-// router.post("/update-password", registerValidation, registerValidationHandler, register);
+router.post("/update-password", emailValidation, emailValidationHandler, updatePassword);
 
 
 module.exports = router;
