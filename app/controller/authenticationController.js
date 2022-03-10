@@ -189,6 +189,22 @@ async function verify(req, res, next) {
     });
 }
 
+// send verfication code to user email
+async function forgotPassword(req, res, next) {
+    console.log("pin code sent");
+    res.status(200).json({
+        message: "Verification code sent to your email!",
+    });
+}
+
+// verification of user
+async function updatePassword(req, res, next) {
+    console.log("pin code verified");
+    res.status(200).json({
+        message: "Verification completed!",
+    });
+}
+
 // do logout
 function logout(req, res) {
     res.clearCookie(process.env.COOKIE_NAME);
@@ -201,5 +217,7 @@ module.exports = {
     logout,
     me,
     sendCode,
-    verify
+    verify,
+    forgotPassword,
+    updatePassword
 };

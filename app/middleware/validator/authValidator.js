@@ -76,9 +76,49 @@ const loginValidationHandler = function (req, res, next) {
     }
 };
 
+const emailValidation = [
+    // check("email")
+    // .isLength({
+    //   min: 1,
+    // })
+    // .withMessage("Email is required"),
+
+    check("email")
+    .isEmail()
+    .withMessage("Invalid Email!")
+    .trim()
+    .custom(async (value) => {
+        try {
+            const user = await User.findOne({ email: value });
+            if (user) {
+                throw createError("Invalid Email!");
+            }
+        } catch (err) {
+            throw createError(err.message);
+        }
+    }),
+];
+
+const emailValidationHandler = function (req, res, next) {
+    const errors = validationResult(req);
+    const mappedErrors = errors.mapped();
+    if (Object.keys(mappedErrors).length === 0) {
+        next();
+    } else {
+        res.status(200).json({
+            data: {
+                email: req.body.email,
+            },
+            errors: mappedErrors,
+        });
+    }
+};
+
 module.exports = {
     loginValidation,
     loginValidationHandler,
     registerValidation,
     registerValidationHandler,
+    emailValidation,
+    emailValidationHandler
 };
