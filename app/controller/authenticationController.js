@@ -41,6 +41,8 @@ async function login(req, res, next) {
                     email: user.email,
                     avatar: user.avatar || null,
                     role: user.role || "user",
+                    emailVerifiedAt: user.emailVerifiedAt,
+                    secret: user.secret
                 };
                 
                 // generate token
@@ -176,18 +178,73 @@ async function register(req, res, next) {
 
 // send verfication code to user email
 async function emailVerification(req, res, next) {
-    console.log(req.auth);
-    res.status(200).json({
-        message: "Verification code sent to your email!",
-    });
+    let email = req.auth.email;
+
+    if(!email) {
+        res.status(401).json({
+            message: "Invalid request!",
+        });
+    }
+
+    let code = Math.floor(100000 + Math.random() * 900000);
+
+    const user = await User.findOne({ email: email });
+    
+    if (!user) {
+        res.status(401).json({
+            message: "Invalid request!",
+        });
+    } else {
+
+        // update user info
+        user.secret = code;
+
+        await user.save();
+
+        await sendMail({
+            to: email,
+            subject: "Email verification",
+            text: `<h1>Hi there, Your requested email verfication code is <code>${code}</code>.</h1>`
+        });
+    
+        res.status(200).json({
+            message: "A verification code sent to your email! Please check and verify your email.",
+        });
+    }
+    
 }
 
 // verification of user
 async function verify(req, res, next) {
-    console.log("pin code verified");
-    res.status(200).json({
-        message: "Verification completed!",
-    });
+    let email = req.auth.email;
+    let code = req.body.code;
+
+    if(!email || !code) {
+        res.status(401).json({
+            message: "Invalid Request!",
+        });
+    }
+
+    const user = await User.findOne({ email: email });
+    
+    if (!user) {
+        res.status(401).json({
+            message: "Invalid request!",
+        });
+    } else {
+        // update user info
+        if(user.secret == code){
+            user.secret = null;
+            user.save();
+            res.status(200).json({
+                message: "Verification completed!",
+            });
+        } else {
+            res.status(401).json({
+                message: "Incorrect Verification Code!",
+            });
+        }
+    }
 }
 
 // send verfication code to user email
@@ -205,22 +262,27 @@ async function forgotPassword(req, res, next) {
     const user = await User.findOne({ email: email });
     
     if (!user) {
-        throw createError("Invalid Email!");
+        res.status(401).json({
+            message: "Invalid request!",
+        });
     } else {
 
         // update user info
+        user.secret = code;
+
+        await user.save();
 
         await sendMail({
             to: email,
             subject: "Email verification",
             text: `<h1>Hi there, Your requested email verfication code is <code>${code}</code>.</h1>`
         });
+
+        res.status(200).json({
+            message: "A verification code sent to your email! Please check and verify your email.",
+        });
     }
 
-
-    res.status(200).json({
-        message: "A verification code sent to your email! Please check and verify your email.",
-    });
 }
 
 // verification of user
@@ -233,18 +295,57 @@ async function verifyEmail(req, res, next) {
             message: "Verification Failed!",
         });
     }
+
+    const user = await User.findOne({ email: email });
     
-    res.status(200).json({
-        message: "Verification completed!",
-    });
+    if (!user) {
+        res.status(401).json({
+            message: "Invalid request!",
+        });
+    } else {
+        // update user info
+        if(user.secret == code){
+            user.secret = null;
+            user.save();
+            res.status(200).json({
+                message: "Verification completed!",
+            });
+        } else {
+            res.status(401).json({
+                message: "Incorrect Verification Code!",
+            });
+        }
+    }
 }
 
 // verification of user
 async function updatePassword(req, res, next) {
-    console.log("password reset completed");
-    res.status(200).json({
-        message: "Verification completed!",
-    });
+    let email = req.body.email;
+    let password = req.body.password;
+
+    if(!email || !password) {
+        res.status(401).json({
+            message: "Verification Failed!",
+        });
+    }
+    
+    const user = await User.findOne({ email: email });
+    
+    if (!user) {
+        res.status(401).json({
+            message: "Invalid request!",
+        });
+    } else {
+        // update user info
+        const hashedPassword = await bcrypt.hash(req.body.password, 10);
+        
+        user.password = hashedPassword;
+        user.save();
+
+        res.status(401).json({
+            message: "Password reset completed. Please login by new password",
+        });
+    }
 }
 
 // verification of user

@@ -23,6 +23,15 @@ const userSchema = mongoose.Schema(
         },
         avatar: {
             type: String,
+            default: null
+        },
+        emailVerifiedAt: {
+            type: String,
+            default: null
+        },
+        secret: {
+            type: String,
+            default: null
         },
         role: {
             type: String,
