@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const createError = require("http-errors");
 
-function verifyAuthMiddleware(role = [], isVerified = true) {
+function authenticationMiddleware(role = [], isVerified = true) {
     return function (req, res, next) {
         // console.log(JSON.stringify(req.headers));
         // let cookies =
@@ -80,5 +80,5 @@ function verifyAuthMiddleware(role = [], isVerified = true) {
 // }
 
 module.exports = {
-    verifyAuthMiddleware
+    authenticationMiddleware
 }

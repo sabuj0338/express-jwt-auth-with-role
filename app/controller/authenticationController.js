@@ -175,8 +175,8 @@ async function register(req, res, next) {
 }
 
 // send verfication code to user email
-async function sendCode(req, res, next) {
-    console.log("pin code sent");
+async function emailVerification(req, res, next) {
+    console.log(req.auth);
     res.status(200).json({
         message: "Verification code sent to your email!",
     });
@@ -192,19 +192,63 @@ async function verify(req, res, next) {
 
 // send verfication code to user email
 async function forgotPassword(req, res, next) {
-    console.log("pin code sent");
-    await sendMail({
-        to: "sabujullapara@gmail.com",
-        subject: "Testing node mail",
-        text: "<h1>Hi there, i am from node js.</h1>"
-    });
+    let email = req.body.email;
+
+    if(!email) {
+        res.status(401).json({
+            message: "Invalid request!",
+        });
+    }
+
+    let code = Math.floor(100000 + Math.random() * 900000);
+
+    const user = await User.findOne({ email: email });
+    
+    if (!user) {
+        throw createError("Invalid Email!");
+    } else {
+
+        // update user info
+
+        await sendMail({
+            to: email,
+            subject: "Email verification",
+            text: `<h1>Hi there, Your requested email verfication code is <code>${code}</code>.</h1>`
+        });
+    }
+
+
     res.status(200).json({
-        message: "Verification code sent to your email!",
+        message: "A verification code sent to your email! Please check and verify your email.",
+    });
+}
+
+// verification of user
+async function verifyEmail(req, res, next) {
+    let email = req.body.email;
+    let code = req.body.code;
+
+    if(!email || !code) {
+        res.status(401).json({
+            message: "Verification Failed!",
+        });
+    }
+    
+    res.status(200).json({
+        message: "Verification completed!",
     });
 }
 
 // verification of user
 async function updatePassword(req, res, next) {
+    console.log("password reset completed");
+    res.status(200).json({
+        message: "Verification completed!",
+    });
+}
+
+// verification of user
+async function updateProfile(req, res, next) {
     console.log("password reset completed");
     res.status(200).json({
         message: "Verification completed!",
@@ -222,8 +266,10 @@ module.exports = {
     register,
     logout,
     me,
-    sendCode,
+    emailVerification,
     verify,
     forgotPassword,
-    updatePassword
+    verifyEmail,
+    updatePassword,
+    updateProfile
 };

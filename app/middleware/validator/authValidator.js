@@ -91,7 +91,7 @@ const emailValidation = [
         try {
             const user = await User.findOne({ email: value });
             if (!user) {
-                throw createError("Invalid Email==!");
+                throw createError("Invalid Email!");
             }
         } catch (err) {
             throw createError(err.message);
